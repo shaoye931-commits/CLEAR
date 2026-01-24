@@ -78,8 +78,9 @@ Create a .env file in the project root:
     Docker Permissions: On Linux, ensure your user is added to the docker group to run commands without sudo.
     [!WARNING]
     Resource Usage: Large-scale experiments may consume a significant amount of API tokens. Monitor your usage quotas.
-## 8. Contact
+## 6. Contact
     Maintainer: [Shao ye]
     Email: shaoye931@gmail.com
+
 
 

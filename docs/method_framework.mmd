@@ -1,0 +1,65 @@
+%% TD-IR Method Framework (Mermaid)
+%% Render: https://mermaid.live  |  VS Code: Markdown Preview Mermaid Support
+%% Export: mmdc -i method_framework.mmd -o method_framework.png --scale 2
+flowchart LR
+  %% Style presets
+  classDef stage fill:#f6f8fa,stroke:#98a2b3,stroke-width:1px,color:#111,border-radius:6px;
+  classDef key fill:#eef2ff,stroke:#6366f1,stroke-width:1.5px,color:#111,border-radius:6px;
+  classDef proc fill:#ecfeff,stroke:#06b6d4,stroke-width:1px,color:#111,border-radius:6px;
+  classDef warn fill:#fff7ed,stroke:#f59e0b,stroke-width:1px,color:#111,border-radius:6px;
+  classDef ok fill:#ecfdf5,stroke:#10b981,stroke-width:1px,color:#111,border-radius:6px;
+  classDef fail fill:#fef2f2,stroke:#ef4444,stroke-width:1px,color:#111,border-radius:6px;
+
+  %% Global inputs
+  A[(MBPP Problems)\n(text + tests)]:::key
+  A --> D1[["Step1  Problem collection & filtering\n- normalize prompts\n- deduplicate\n- split tests (test_list / challenge)"]]:::stage
+
+  %% Evaluating pipeline
+  subgraph E[Evaluating]
+    direction LR
+    D1 --> G1[["Step2  Code generation (CoT)\n- build_initial_prompt_with_cot()\n- LLM: DeepSeek via SiliconFlow\n- extract code block"]]:::proc
+    G1 --> T1[["Step3  Judging correctness (RQ1)\n- Sandbox (Docker or local fallback)\n- build_test_script_from_list(test_list)\n- exit_code == 0 ?"]]:::stage
+    T1 -->|pass| EV[["Final evaluation\n- challenge_test_list (if any)\n- record final_evaluation_status"]]:::ok
+    T1 -->|fail| I0[[Iterative loop → Improving]]:::warn
+  end
+
+  %% Improving pipeline
+  subgraph I[Improving]
+    direction TB
+    %% Knowledge building (RQ2)
+    K1[["Construct error taxonomy (RQ2)\n- AssertionError / Timeout / NameError / ...\n- From stderr + exit_code"]]:::key
+    K2[["Propose improvement framework\n- Guided Diagnostics\n- Failure History Injection\n- Test Case Sanity Check"]]:::key
+    K1 --> K2
+
+    %% Program paths
+    P0["Program (iteration i)\ncode, prompt, logs"]:::stage
+    P0 --> I1[["Guided Diagnostics\n- parse_error_diagnostics()\n- type-specific prompt\n  • Assertion: actual vs expected\n  • Timeout: complexity → efficient design\n  • Others: generic root-cause template\n- generate new code"]]:::proc
+    I1 --> S1{"Sandbox test\nexit_code == 0 ?"}:::stage
+    S1 -->|yes| EV2[["Re-evaluate & finalize"]]:::ok
+    S1 -->|no| H1[["Failure History Injection\n- accumulate {failed_assert, actual, expected}\n- inject multiple attempts into prompt\n- ask for unified fix"]]:::proc
+    H1 --> S2{"Sandbox test\nexit_code == 0 ?"}:::stage
+    S2 -->|yes| EV3[["Re-evaluate & finalize"]]:::ok
+    S2 -->|no| SC{"Assertion failures ≥ 2 ?\n(actual & expected extracted)"}:::warn
+    SC -->|yes| R1[["Test Case Sanity Check\n- build_sanity_check_prompt()\n- LLM judge: Output A (code) vs Output B (test)"]]:::proc
+    R1 -->|Output A is correct| PR[["Mark pass_by_review\n- stop iterations\n- log justification"]]:::ok
+    R1 -->|Output B is correct| LP[["Continue iterations\n- regenerate via diagnostics"]]:::stage
+    SC -->|no| LP
+    LP --> P0
+  end
+
+  %% Legend
+  subgraph L[Legend]
+    direction TB
+    L1[Inputs / Knowledge]:::key
+    L2[Stage / System module]:::stage
+    L3[Procedure / Algorithm]:::proc
+    L4[Success]:::ok
+    L5[Failure / Review]:::warn
+  end
+
+  %% Cross links
+  EV --> I0
+  EV2 --> EV
+  EV3 --> EV
+
+

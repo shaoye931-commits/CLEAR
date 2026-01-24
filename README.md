@@ -11,7 +11,7 @@
 
 ---
 
-**MA-SDR** is a test-driven iterative framework designed to evaluate the performance of Large Language Models (LLMs) in **Assignment Code Generation** tasks. This project is specifically optimized for **Aggregated Function Call Dependency Scenarios**.
+**MA-SDR** Structured Iterative Reasoning via Multi-Agent Collaboration for Assignment Code Generation. This project is specifically optimized for **Aggregated Function Call Dependency Scenarios**.
 
 ## 1. Project Introduction
 
@@ -35,5 +35,6 @@ This project implements a closed-loop automated **Assignment Code Generation** a
 ## 2. Approach
 MA-SDR employs a multi-stage iterative process to ensure quality in Assignment Code Generation:
 ![MA-SDR Framework](docs/ss.png)
+
 
 

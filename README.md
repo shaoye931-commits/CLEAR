@@ -38,21 +38,21 @@ MA-SDR employs a multi-stage iterative process to ensure quality in Assignment C
 
 ```mermaid
 graph TD
-    A([Start]) --> B[Initial Assignment Code Gen<br>(Chain-of-Thought)]
-    B --> C{AST Compliance?}
+    A([Start]) --> B["Initial Assignment Code Gen<br>(Chain-of-Thought)"]
+    B --> C{"AST Compliance?"}
     
     C -- Fail --> D[Generate Error Report]
     C -- Pass --> E[Docker Sandbox Execution]
     
-    E --> F{Tests Passed?}
+    E --> F{"Tests Passed?"}
     F -- Yes --> G([✅ Task Success])
     
     F -- No --> H[Error Diagnosis Analysis]
     
-    D --> I{Max Iters?}
+    D --> I{"Max Iters?"}
     H --> I
     
-    I -- No --> J[Iterative Refinement]
+    I -- No --> J["Iterative Refinement"]
     J --> C
     
     I -- Yes --> K([❌ Task Failed])
@@ -68,73 +68,3 @@ graph TD
     style J fill:#E6E6FA,stroke:#333,stroke-width:2px
     style D fill:#E6E6FA,stroke:#333,stroke-width:2px
     style H fill:#E6E6FA,stroke:#333,stroke-width:2px
-3. Project Structure
-code
-Text
-MA-SDR_Experiment/
-|-- data/                    # Dataset directory (HumanEval-Pro, MBPP-Pro)
-|-- src/                     # Source code directory
-|   |-- agents/              # Diagnosis agents
-|   |-- deepseek_client.py   # DeepSeek API client
-|   |-- dual_task_*.py       # Dependency compliance & diagnostics
-|   |-- sandbox_executor.py  # Docker sandbox executor
-|   `-- main.py              # Main entry point
-|-- docker/                  # Docker configuration
-|-- results/                 # Results output directory
-`-- requirements.txt         # Python dependencies
-4. Environment Setup
-4.1 System Requirements
-Python: 3.12+
-Docker: Required for sandbox execution.
-Git: For version control.
-4.2 Installation
-code
-Bash
-# 1. Clone the repository
-git clone https://github.com/yourusername/MA-SDR_Experiment.git
-cd MA-SDR_Experiment
-
-# 2. Create and activate virtual environment
-python -m venv venv
-source venv/bin/activate    # Linux/macOS
-# venv\Scripts\activate     # Windows
-
-# 3. Install dependencies
-pip install -r requirements.txt
-4.3 Configuration
-Create a .env file in the project root:
-code
-Ini
-DEEPSEEK_API_KEY=sk-xxxxxxxxxxxxxxxx
-DEEPSEEK_BASE_URL=https://api.deepseek.com
-MODEL_TO_TEST=deepseek-coder
-4.4 Build Sandbox Image
-code
-Bash
-docker build -t masdr-sandbox:latest -f docker/Dockerfile .
-5. Usage
-5.1 Basic Execution
-code
-Bash
-python -m src.main --data data/mbpp_pro.json --limit 5 --max_iters 3
-5.2 Arguments
-Argument	Description	Default
---data	Path to the dataset file (JSON)	Required
---limit	Limit the number of tasks (for debugging)	None
---max_iters	Maximum number of refinement iterations	3
---results_dir	Directory to save results	results/
---image	Docker image name	masdr-sandbox
-6. Output Results
-Results are saved in results/ as .jsonl files. Key fields include:
-final_status: success | fail | pass_by_review
-iterations: Detailed logs (code, stdout, stderr, failed assertions).
-7. Notes
-[!IMPORTANT]
-API Key Security: Ensure .env is added to your .gitignore file. Never commit your API keys to a public repository.
-[!TIP]
-Docker Permissions: On Linux, ensure your user is added to the docker group to run commands without sudo.
-[!WARNING]
-Resource Usage: Large-scale experiments may consume a significant amount of API tokens. Monitor your usage quotas.
-8. Contact
-Maintainer: [Your Name]
-Email: your.email@example.com

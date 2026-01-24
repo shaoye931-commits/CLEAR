@@ -1,7 +1,7 @@
 <div align="center">
 
 # MA-SDR Experiment
-### Model-Agnostic Self-Diagnostic Refinement
+### Multi-Agent Structured Diagnosis and Refinement
 
 [![Python 3.12+](https://img.shields.io/badge/Python-3.12%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Docker Enabled](https://img.shields.io/badge/Docker-Enabled-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
@@ -35,6 +35,7 @@ This project implements a closed-loop automated **Assignment Code Generation** a
 ## 2. Approach
 MA-SDR employs a multi-stage iterative process to ensure quality in Assignment Code Generation:
 ![MA-SDR Framework](docs/ss.png)
+
 
 
 

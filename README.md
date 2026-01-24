@@ -36,35 +36,3 @@ This project implements a closed-loop automated **Assignment Code Generation** a
 
 MA-SDR employs a multi-stage iterative process to ensure quality in Assignment Code Generation:
 
-```mermaid
-graph TD
-    A([Start]) --> B["Initial Assignment Code Gen<br>(Chain-of-Thought)"]
-    B --> C{"AST Compliance?"}
-    
-    C -- Fail --> D[Generate Error Report]
-    C -- Pass --> E[Docker Sandbox Execution]
-    
-    E --> F{"Tests Passed?"}
-    F -- Yes --> G([✅ Task Success])
-    
-    F -- No --> H[Error Diagnosis Analysis]
-    
-    D --> I{"Max Iters?"}
-    H --> I
-    
-    I -- No --> J["Iterative Refinement"]
-    J --> C
-    
-    I -- Yes --> K([❌ Task Failed])
-
-    style A fill:#90EE90,stroke:#333,stroke-width:2px
-    style G fill:#90EE90,stroke:#333,stroke-width:2px
-    style K fill:#FFCCCB,stroke:#333,stroke-width:2px
-    style C fill:#FFFACD,stroke:#333,stroke-width:2px
-    style F fill:#FFFACD,stroke:#333,stroke-width:2px
-    style I fill:#FFFACD,stroke:#333,stroke-width:2px
-    style B fill:#E6E6FA,stroke:#333,stroke-width:2px
-    style E fill:#E6E6FA,stroke:#333,stroke-width:2px
-    style J fill:#E6E6FA,stroke:#333,stroke-width:2px
-    style D fill:#E6E6FA,stroke:#333,stroke-width:2px
-    style H fill:#E6E6FA,stroke:#333,stroke-width:2px

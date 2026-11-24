@@ -15,29 +15,48 @@
 
 ## 1. Project Introduction
 
-This project implements a closed-loop automated **Assignment Code Generation** and repair system. Its key features include:
+This project implements **CLEAR (Call-Level Evidence-guided Attribution and Refinement)**, a multi-agent framework for self-invoking code generation. CLEAR integrates dependency-guided code generation, call-level execution evidence, fault attribution, and constrained iterative refinement to improve the correctness of generated programs with explicit function dependencies.
 
-*   **🧩 Aggregated Function Call Dependency Support**
-    Supports the collaborative generation of **Auxiliary Functions** and **Main Functions**, ensuring logical decoupling and correct call dependencies between functions.
+Its key features include:
 
-*   **🔍 AST Compliance Check**
-    Performs static Abstract Syntax Tree (AST) analysis before code execution to enforce structural norms, ensuring the Main Function correctly calls the Auxiliary Function.
+* **🧩 Dependency-Guided Code Generation**
 
-*   **🔄 Iterative Refinement**
-    Supports multi-round self-correction, combining error diagnosis reports with targeted code refactoring.
+  Guides the generation of main and auxiliary functions according to task specifications and required calling relationships.
 
-*   **🛡️ Sandbox Execution**
-    Uses Docker containers to execute generated code and test cases safely, preventing host system contamination.
+* **🔍 AST-Based Structural Validation**
 
-*   **💡 Guided Diagnostics**
-    Intelligently analyzes Runtime Errors and Assertion Failures to provide precise repair suggestions.
+  Performs static Abstract Syntax Tree (AST) analysis to verify program syntax, required function definitions, and explicit calling relationships.
+
+* **📊 Call-Level Evidence Collection**
+
+  Uses dynamic instrumentation to collect auxiliary function arguments, return values, exceptions, and call sequences during test execution.
+
+* **💡 Evidence-Guided Fault Attribution**
+
+  Employs a diagnosis agent to analyze execution evidence and function specifications, distinguishing potential faults in auxiliary functions, function calls, and main functions.
+
+* **🔄 Constrained Refinement**
+
+  Translates fault attribution results into explicit modification constraints, guiding the generation agent to refine relevant code regions while preserving required function dependencies.
+
+* **🔒 History and Freezing**
+
+  Maintains historical execution and diagnosis information to reduce repeated failures and unintended modifications while preserving function implementations supported by available evidence.
+
+* **🔁 Context Reset**
+
+  Initiates a new code generation attempt using summarized historical feedback when preceding refinement iterations remain unsuccessful.
+
+* **🛡️ Sandbox Execution**
+
+  Executes generated programs and test cases within isolated Docker containers to support controlled and secure program evaluation.
 
 ## 2. Approach
 CLEAR employs a multi-stage iterative process to ensure quality in Assignment Code Generation:
 ![CLEAR Framework](fame.png)
 
 ## 3. Project Structure
-MA-SDR_Experiment/
+CLEAR_Experiment/
 |-- data/                    # Dataset directory (HumanEval-Pro, MBPP-Pro)
 |-- src/                     # Source code directory
 |   |-- agents/              # Diagnosis agents

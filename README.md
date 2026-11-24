@@ -11,7 +11,7 @@
 
 ---
 
-**CLEAR** Structured Iterative Reasoning via Multi-Agent Collaboration for Assignment Code Generation. This project is specifically optimized for **Aggregated Function Call Dependency Scenarios**.
+**CLEAR** Structured Iterative Reasoning via Multi-Agent Collaboration for Code Generation. This project is specifically optimized for **Aggregated Function Call Dependency Scenarios**.
 
 ## 1. Project Introduction
 

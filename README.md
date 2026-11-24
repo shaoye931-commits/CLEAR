@@ -34,7 +34,7 @@ This project implements a closed-loop automated **Assignment Code Generation** a
 
 ## 2. Approach
 CLEAR employs a multi-stage iterative process to ensure quality in Assignment Code Generation:
-![CLEAR Framework](docs/fame.pdf)
+![CLEAR Framework](fame.png)
 
 ## 3. Project Structure
 MA-SDR_Experiment/

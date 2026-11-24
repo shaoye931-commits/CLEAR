@@ -1,6 +1,6 @@
 <div align="center">
 
-# MA-SDR Experiment
+# CLEAR Experiment
 ### Multi-Agent Structured Diagnosis and Refinement
 
 [![Python 3.12+](https://img.shields.io/badge/Python-3.12%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
@@ -11,7 +11,7 @@
 
 ---
 
-**MA-SDR** Structured Iterative Reasoning via Multi-Agent Collaboration for Assignment Code Generation. This project is specifically optimized for **Aggregated Function Call Dependency Scenarios**.
+**CLEAR** Structured Iterative Reasoning via Multi-Agent Collaboration for Assignment Code Generation. This project is specifically optimized for **Aggregated Function Call Dependency Scenarios**.
 
 ## 1. Project Introduction
 
@@ -33,7 +33,7 @@ This project implements a closed-loop automated **Assignment Code Generation** a
     Intelligently analyzes Runtime Errors and Assertion Failures to provide precise repair suggestions.
 
 ## 2. Approach
-MA-SDR employs a multi-stage iterative process to ensure quality in Assignment Code Generation:
+CLEAR employs a multi-stage iterative process to ensure quality in Assignment Code Generation:
 ![MA-SDR Framework](docs/ss.png)
 
 ## 3. Project Structure

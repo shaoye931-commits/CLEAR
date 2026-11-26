@@ -55,27 +55,8 @@ Its core features include:
 
 ## 2. Approach
 
-CLEAR follows a four-phase iterative workflow with a refinement budget of `R=3`.
-
-```mermaid
-flowchart LR
-    A[Base and extended specifications] --> B[Dependency-guided generation]
-    B --> C{AST validation}
-    C -->|Invalid| B
-    C -->|Valid| D[Docker execution and call tracing]
-    D --> E{Public tests pass?}
-    E -->|Yes| F[Seal candidate]
-    E -->|No| G[Evidence-guided diagnosis]
-    G --> H[Modification constraints and freezing]
-    H --> I{Final opportunity?}
-    I -->|No| J[Constrained refinement]
-    I -->|Yes| K[Context reset]
-    J --> C
-    K --> C
-    F --> L[Held-out evaluation]
-```
-
-The first two tests of each task are used as public tests. Remaining tests are isolated for final held-out evaluation.
+CLEAR employs a multi-stage iterative process to ensure quality in Assignment Code Generation:
+![CLEAR Framework](fame.png)
 
 ## 3. Project Structure
 

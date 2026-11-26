@@ -5,101 +5,211 @@
 
 [![Python 3.12+](https://img.shields.io/badge/Python-3.12%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Docker Enabled](https://img.shields.io/badge/Docker-Enabled-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-4c1)](LICENSE)
+[![Method: CLEAR](https://img.shields.io/badge/Method-CLEAR-6C63FF)](https://arxiv.org/abs/2412.21199)
 
 </div>
 
 ---
 
-**CLEAR** Structured Iterative Reasoning via Multi-Agent Collaboration for Code Generation. This project is specifically optimized for **Aggregated Function Call Dependency Scenarios**.
+**CLEAR** implements **Call-Level Evidence-Guided Attribution and Refinement** for self-invoking code generation. It is designed for programming tasks in which an extended function must explicitly invoke a required base function.
+
+This repository contains only the core implementation. It does not include baselines, ablation variants, datasets, or experimental results.
 
 ## 1. Project Introduction
 
-This project implements **CLEAR (Call-Level Evidence-guided Attribution and Refinement)**, a multi-agent framework for self-invoking code generation. CLEAR integrates dependency-guided code generation, call-level execution evidence, fault attribution, and constrained iterative refinement to improve the correctness of generated programs with explicit function dependencies.
+CLEAR combines dependency-guided generation, structural validation, call-level execution evidence, fault attribution, and constrained iterative refinement.
 
-Its key features include:
+Its core features include:
 
-* **🧩 Dependency-Guided Code Generation**
+- **🧩 Dependency-Guided Code Generation**
 
-  Guides the generation of main and auxiliary functions according to task specifications and required calling relationships.
+  Generates the base and extended functions from their specifications while preserving the required `extended -> base` dependency.
 
-* **🔍 AST-Based Structural Validation**
+- **🔍 AST-Based Structural Validation**
 
-  Performs static Abstract Syntax Tree (AST) analysis to verify program syntax, required function definitions, and explicit calling relationships.
+  Uses Python AST analysis to verify syntax, required top-level function definitions, and the explicit dependency call.
 
-* **📊 Call-Level Evidence Collection**
+- **📊 Call-Level Evidence Collection**
 
-  Uses dynamic instrumentation to collect auxiliary function arguments, return values, exceptions, and call sequences during test execution.
+  Instruments the base function and records call IDs, arguments, keyword arguments, return values, exceptions, and completion status during public-test execution.
 
-* **💡 Evidence-Guided Fault Attribution**
+- **💡 Evidence-Guided Fault Attribution**
 
-  Employs a diagnosis agent to analyze execution evidence and function specifications, distinguishing potential faults in auxiliary functions, function calls, and main functions.
+  Classifies failures as `BASE`, `CALL`, `EXT`, or `UNDETERMINED` by comparing function specifications with test feedback and recorded calls.
 
-* **🔄 Constrained Refinement**
+- **🔄 Constrained Refinement**
 
-  Translates fault attribution results into explicit modification constraints, guiding the generation agent to refine relevant code regions while preserving required function dependencies.
+  Converts the diagnosis into explicit modification and preservation targets before requesting a refined candidate.
 
-* **🔒 History and Freezing**
+- **🔒 History and Freezing**
 
-  Maintains historical execution and diagnosis information to reduce repeated failures and unintended modifications while preserving function implementations supported by available evidence.
+  Preserves historically supported functions unless later evidence requires them to change.
 
-* **🔁 Context Reset**
+- **🔁 Context Reset**
 
-  Initiates a new code generation attempt using summarized historical feedback when preceding refinement iterations remain unsuccessful.
+  Uses summarized historical feedback and a fresh generation context for the final refinement opportunity.
 
-* **🛡️ Sandbox Execution**
+- **🛡️ Sandbox Execution**
 
-  Executes generated programs and test cases within isolated Docker containers to support controlled and secure program evaluation.
+  Executes generated programs and tests inside an isolated Docker container with networking disabled and per-test time limits.
 
 ## 2. Approach
-CLEAR employs a multi-stage iterative process to ensure quality in Assignment Code Generation:
-![CLEAR Framework](fame.png)
+
+CLEAR follows a four-phase iterative workflow with a refinement budget of `R=3`.
+
+```mermaid
+flowchart LR
+    A[Base and extended specifications] --> B[Dependency-guided generation]
+    B --> C{AST validation}
+    C -->|Invalid| B
+    C -->|Valid| D[Docker execution and call tracing]
+    D --> E{Public tests pass?}
+    E -->|Yes| F[Seal candidate]
+    E -->|No| G[Evidence-guided diagnosis]
+    G --> H[Modification constraints and freezing]
+    H --> I{Final opportunity?}
+    I -->|No| J[Constrained refinement]
+    I -->|Yes| K[Context reset]
+    J --> C
+    K --> C
+    F --> L[Held-out evaluation]
+```
+
+The first two tests of each task are used as public tests. Remaining tests are isolated for final held-out evaluation.
 
 ## 3. Project Structure
-CLEAR_Experiment/
-|-- data/                    # Dataset directory (HumanEval-Pro, MBPP-Pro)
-|-- src/                     # Source code directory
-|   |-- agents/              # Diagnosis agents
-|   |-- deepseek_client.py   # DeepSeek API client
-|   |-- dual_task_*.py       # Dependency compliance & diagnostics
-|   |-- sandbox_executor.py  # Docker sandbox executor
-|   `-- main.py              # Main entry point
-|-- docker/                  # Docker configuration
-|-- results/                 # Results output directory
-`-- requirements.txt         # Python dependencies
+
+```text
+CLEAR/
+|-- src/
+|   |-- agents/              # Generation and diagnosis agents
+|   |-- analysis/            # Contracts, AST checks, and call tracing
+|   |-- experiments/         # Run records and local result persistence
+|   |-- repair/              # Constraints and refinement prompts
+|   |-- tests/               # Core unit tests
+|   |-- config.py            # CLEAR protocol configuration
+|   |-- data.py              # Dataset parsing and public/held-out split
+|   |-- evaluation.py        # Final held-out evaluation
+|   |-- llm.py               # OpenAI-compatible API client
+|   |-- main.py              # Command-line entry point
+|   `-- pipeline.py          # CLEAR Algorithm 1 workflow
+|-- data/                    # User-provided datasets; ignored by Git
+|-- docker/
+|   `-- Dockerfile           # Isolated Python execution image
+|-- .env.example             # Environment variable template
+|-- .gitignore
+|-- README.md
+`-- requirements.txt         # Standard-library-only runtime
+```
 
 ## 4. Environment Setup
-# 4.1 System Requirements
-    Python: 3.12+
-    Docker: Required for sandbox execution.
-    Git: For version control.
-# 4.2 Installation
-    # 1. Clone the repository
-    git clone https://github.com/yourusername/MA-SDR_Experiment.git
-    cd MA-SDR_Experiment
-    
-    # 2. Create and activate virtual environment
-    python -m venv venv
-    source venv/bin/activate    # Linux/macOS
-    # venv\Scripts\activate     # Windows
-    
-    # 3. Install dependencies
-    pip install -r requirements.txt
-# 4.3 Configuration
-Create a .env file in the project root:
-    DEEPSEEK_API_KEY=sk-xxxxxxxxxxxxxxxx
-    DEEPSEEK_BASE_URL=https://api.deepseek.com
-    MODEL_TO_TEST=deepseek-coder
-## 5. Notes
-    [!IMPORTANT]
-    API Key Security: Ensure .env is added to your .gitignore file. Never commit your API keys to a public repository.
-    [!TIP]
-    Docker Permissions: On Linux, ensure your user is added to the docker group to run commands without sudo.
-    [!WARNING]
-    Resource Usage: Large-scale experiments may consume a significant amount of API tokens. Monitor your usage quotas.
-## 6. Contact
-    Maintainer: [Shao ye]
-    Email: shaoye931@gmail.com
 
+### 4.1 System Requirements
 
+- Python 3.12+
+- Docker
+- Git
 
+### 4.2 Installation
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/yourusername/CLEAR.git
+cd CLEAR
+
+# 2. Create and activate a virtual environment
+python -m venv .venv
+
+# Linux/macOS
+source .venv/bin/activate
+
+# Windows PowerShell
+.venv\Scripts\Activate.ps1
+
+# 3. Install dependencies
+python -m pip install -r requirements.txt
+
+# 4. Build the sandbox image
+docker build -t clear-sandbox:latest docker
+```
+
+### 4.3 Configuration
+
+Copy `.env.example` to `.env` and provide an OpenAI-compatible endpoint:
+
+```dotenv
+CLEAR_API_KEY=
+CLEAR_MODEL=your_model_id
+CLEAR_API_ENDPOINT=https://example.com/v1/chat/completions
+CLEAR_HUMANEVAL_PATH=data/humaneval_pro.json
+CLEAR_MBPP_PATH=data/mbpp_pro.json
+CLEAR_DOCKER_IMAGE=clear-sandbox:latest
+```
+
+All prompts sent to the model are written in English. API keys are read only from environment variables or the ignored local `.env` file.
+
+### 4.4 Dataset Placement
+
+Datasets are not included in this repository. Place CodeEval-Pro-compatible files at:
+
+```text
+data/humaneval_pro.json
+data/mbpp_pro.json
+```
+
+Alternative locations can be supplied through `CLEAR_HUMANEVAL_PATH` and `CLEAR_MBPP_PATH`.
+
+## 5. Usage
+
+### 5.1 Run the Core Tests
+
+```bash
+python -m unittest discover -s src/tests -v
+```
+
+### 5.2 Run the Local Mock Workflow
+
+The mock workflow does not require a dataset, Docker, or an API key.
+
+```bash
+python -m src.main --mode mock
+```
+
+### 5.3 Inspect Datasets and Docker
+
+```bash
+python -m src.main --mode inspect
+```
+
+### 5.4 Run One Task
+
+```bash
+python -m src.main --mode run \
+  --dataset humaneval \
+  --task-id 0 \
+  --run-id clear-he-0 \
+  --model YOUR_MODEL_ID \
+  --model-kind open-weight \
+  --api-endpoint https://example.com/v1/chat/completions \
+  --max-api-requests 16 \
+  --max-total-tokens 100000 \
+  --allow-api
+```
+
+Omit `--task-id` to run the selected full dataset. Generated run records are written to `results/`, which is excluded from Git.
+
+## 6. Notes
+
+> [!IMPORTANT]
+> **API key security:** never commit `.env` or API credentials. The repository includes only `.env.example` with empty placeholders.
+
+> [!TIP]
+> **Docker permissions:** on Linux, ensure the current user can run Docker commands without requiring an interactive password.
+
+> [!WARNING]
+> **Resource usage:** full-dataset runs can consume substantial API tokens. Always set `--max-api-requests` and `--max-total-tokens` according to your budget.
+
+## 7. Contact
+
+- Maintainer: Shao Ye
+- Email: shaoye931@gmail.com
